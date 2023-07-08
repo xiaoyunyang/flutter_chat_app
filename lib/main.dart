@@ -80,6 +80,12 @@ class MyHomePage extends StatelessWidget {
                         child: Text('Next Clock State'),
                       ),
                     ]))),
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<ClockModel>(context, listen: false).getNext();
+              },
+              child: Text('Next Clock State'),
+            ),
           ],
         ),
       ),
