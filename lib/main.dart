@@ -1,8 +1,18 @@
+import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  var providers = [
+    ChangeNotifierProvider(create: (context) => ClockModel()),
+    ChangeNotifierProvider(create: (context) => RandomWordModel()),
+  ];
+  runApp(
+    MultiProvider(
+      providers: providers,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+      create: (context) => ClockModel(),
       child: MaterialApp(
         title: 'Namer App',
         theme: ThemeData(
@@ -24,7 +34,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyAppState extends ChangeNotifier {
+class ClockModel extends ChangeNotifier {
   var current = "tick";
 
   void getNext() {
@@ -33,23 +43,43 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
+class RandomWordModel extends ChangeNotifier {
+  var current = WordPair.random();
+
+  void getNext() {
+    current = WordPair.random();
+    notifyListeners();
+  }
+}
+
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(appState.current),
-            ElevatedButton(
-              onPressed: () {
-                appState.getNext();
-              },
-              child: Text('Next'),
-            ),
+            Consumer<RandomWordModel>(
+                builder: (context, randomWordState, child) => Column(children: [
+                      Text(randomWordState.current.asLowerCase),
+                      ElevatedButton(
+                        onPressed: () {
+                          randomWordState.getNext();
+                        },
+                        child: Text('Next Random Word Pair State'),
+                      ),
+                    ])),
+            Consumer<ClockModel>(
+                builder: (context, clockState, child) => (Column(children: [
+                      Text(clockState.current),
+                      ElevatedButton(
+                        onPressed: () {
+                          clockState.getNext();
+                        },
+                        child: Text('Next Clock State'),
+                      ),
+                    ]))),
           ],
         ),
       ),
